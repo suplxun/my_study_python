@@ -1,6 +1,5 @@
-from collections import defaultdict
 import openpyxl
-import docx
+from docx import Document
 import os
 
 
@@ -8,42 +7,109 @@ os.chdir('C:\\Users\\Administrator\\Desktop')
 
 
 wb = openpyxl.load_workbook('md.xlsx')
-doc = docx.Document('d.docx')
+doc1 = Document()
 
-sheet_a = wb.get_sheet_by_name('Sheet1')
+sheet_a = wb["Sheet1"]
 
-group_name_k = ''
-group_names = defaultdict(list)
+dict_names = {}
+dict_head = {}
+dict_preparation = {}
+list_tea_res = []
 
-for i in range(4,156):
-        name = sheet_a.cell(row = i,column = 2).value
+for i in range(3,305):
+        name = sheet_a.cell(row = i,column = 3).value
+        grade = sheet_a.cell(row = i,column = 6).value
+        course = sheet_a.cell(row = i,column = 7).value
+        headteacher = sheet_a.cell(row = i,column = 9).value
+        Leader_of_lesson_preparation = sheet_a.cell(row = i,column = 11).value
+        Head_of_teaching_and_Research_Group = sheet_a.cell(row = i,column = 12).value
         if len(name) == 2:
                 name = '  '.join(name)
-        group_name = sheet_a.cell(row = i,column = 3).value
-        if (group_name_k == group_name):
-                group_names[group_name_k].append(name)
-        else:
-                group_name_k = group_name
-                group_names[group_name_k].append(name)
-        
+        if (grade not in dict_names):
+                dict_names[grade]={}
+        if (course not in dict_names[grade]):
+                dict_names[grade][course] = []
+        dict_names[grade][course].append(name)
 
-        
+        if (grade not in dict_head):
+                dict_head[grade]= []
+        if(headteacher != None):
+            dict_head[grade].append(name)
+
+        if (grade not in dict_preparation):
+            dict_preparation[grade]= []
+        if(Leader_of_lesson_preparation != None):
+            dict_preparation[grade].append(name)
+
+        if (Head_of_teaching_and_Research_Group != None):
+            list_tea_res.append(name)
 
 s = ''
-for g in group_names.keys():
+for g in dict_names.keys():
         s = s + g + '\n'
-        k = 0
-        count = len(group_names[g])
-        for gns in group_names[g]:
-                count = count - 1
-                if (k != 6):
-                        s = s + gns + "  "
+        for c in dict_names[g].keys():
+                s = s + str(c) + '\n'
+                count = len(dict_names[g][c])
+                k = 0
+                for n in dict_names[g][c]:
+                    count = count - 1
+                    if (k != 6):
+                        s = s + n + "  "
                         k = k + 1
                         if (count == 0):
-                                s = s + '\n'
-                elif (k == 6):
+                            s = s + '\n'
+                    elif (k == 6):
                         k = 0
-                        s = s + gns + "  " + '\n'
-doc.add_paragraph(s)                    
-doc.save('d.docx')
+                        s = s + n + "  " + '\n'
+p=""
+for g in dict_preparation.keys():
+    p = p + g +"备课组长"+ '\n'
+    count = len(dict_preparation[g])
+    k=0
+    for n in dict_preparation[g]:
+        count = count -1
+        if(k!=6):
+            p = p+n+"  "
+            k = k+1
+            if(count == 0):
+                p=p+"\n"
+        elif(k==6):
+            k=0
+            p=p+n+"  "+"\n"
+
+h=""
+for g in dict_head.keys():
+    h = h + g +"班主任"+ '\n'
+    count = len(dict_head[g])
+    k=0
+    for n in dict_head[g]:
+        count = count -1
+        if(k!=6):
+            h = h+n+"  "
+            k = k+1
+            if(count == 0):
+                h=h+"\n"
+        elif(k==6):
+            k=0
+            h=h+n+"  "+"\n"
+
+r="教研组长\n"
+k=0
+count = len(list_tea_res)
+for n in list_tea_res:
+    count = count - 1
+    if (k != 6):
+        r = r + n + "  "
+        k = k + 1
+        if (count == 0):
+            r = r + "\n"
+    elif (k == 6):
+        k = 0
+        r = r + n + "  " + "\n"
+
+doc1.add_paragraph(s)
+doc1.add_paragraph(p)
+doc1.add_paragraph(h)
+doc1.add_paragraph(r)
+doc1.save('d.docx')
                 
